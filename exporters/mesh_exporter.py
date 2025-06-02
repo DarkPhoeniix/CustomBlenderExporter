@@ -30,8 +30,8 @@ def export_mesh(obj, filepath):
     bm = bmesh.new()
     bm.from_mesh(mesh)
 
-    bm.transform(axis_corr)   # bake coords in BMesh
-    bm.normal_update()        # recompute normals in BMesh
+    #bmesh.ops.rotate(bm, geom=bm.verts[:], matrix=axis_corr)    # bake coords in BMesh
+    bm.normal_update()                                          # recompute normals in BMesh
 
     bm.to_mesh(mesh)
     bm.free()

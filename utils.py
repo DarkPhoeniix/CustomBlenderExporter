@@ -9,8 +9,7 @@ def console_log(message: str, end: str = '\n'):
 
 
 def rhs_to_lhs(matrix):
-    axis_correction = axis_conversion('Y', 'Z', 'Z', 'Y')
-    axis_correction = mathutils.Matrix(((1,0,0,0), (0,1,0,0), (0,0,1,0), (0,0,0,1)))
+    axis_correction = axis_conversion(from_forward='-Y', from_up='Z', to_forward='Z', to_up='Y').to_4x4()
     return axis_correction @ matrix
 
 

@@ -9,6 +9,7 @@ from .mesh_exporter import export_mesh
 import bpy
 import json
 from pathlib import Path
+import mathutils
 
 def export_scene(context, filepath, use_some_setting):
     '''Exports all object of the scene to filepath'''
@@ -54,8 +55,8 @@ def export_node(node, filepath, transform = None):
             break
     has_animation = has_armature and getattr(node, 'animation_data', None) and node.animation_data.action
 
-    local_transform = mathutils.Matrix.transposed(node.matrix_local)
-    local_transform[3][1] = -local_transform[3][1]
+    local = rhs_to_lhs(node.matrix_local)
+    local_transform = mathutils.Matrix.transposed(local)
 
     # Recurse into Children
     children_files = []
@@ -76,8 +77,10 @@ def export_node(node, filepath, transform = None):
     if node.type == 'MESH':
         export_mesh(node, str(mesh_path))
         node_json["Mesh"] = mesh_path.name
+
         export_material(node, str(material_path))
         node_json["Material"] = material_path.name
+
         # Export Armature
         if has_armature:
             export_armature(node, str(armature_path))
@@ -86,6 +89,7 @@ def export_node(node, filepath, transform = None):
         if has_animation:
             export_animation(node, str(animation_path))
             node_json["Animation"] = animation_path.name
+
     elif node.type == 'LIGHT':
         export_light(node, light_path)
         node_json["Light"] = animation_path.name
@@ -93,7 +97,9 @@ def export_node(node, filepath, transform = None):
     elif node.type != 'EMPTY':
         console_log('Done')
         return children_files
+    
     # Write out the .node file
     with open(node_path, 'w', encoding='utf-8') as output:
         json.dump(node_json, output, indent=4)
+
     return [node_name + '.node']
